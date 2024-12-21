@@ -5,7 +5,7 @@
 @url https://reflector88.itch.io/
 @help 
 
-"Proximity Sensor 1.2"
+"Proximity Sensor 1.3"
 This plugin activates a switch/self-switch when an event is in proximity to
 the player. This is useful for roaming enemies, stealth sequences, and traps.
 Also has options for direction and line of sight.
@@ -13,6 +13,7 @@ Also has options for direction and line of sight.
 Update
 -V1.1 Added "Facing in a Line"
 -V1.2 Switches now toggle; improved compatibility
+-V1.3 Fixed crashing when used with certain pixel movement scripts
 ____________________________________________________________________________
 CONFIGURATION
 1. Open the event commands window and select "Plugin Command"
@@ -218,7 +219,12 @@ though please credit me.
         let tileY = eventY;
         let error = distanceX - distanceY;
 
-        while (tileX !== playerX || tileY !== playerY) {
+
+        const hypotenuse = Math.sqrt(Math.pow(distanceX, 2) + Math.pow(distanceY, 2));
+        let tileHypotenuse = Math.sqrt(Math.pow(tileX - eventX, 2) + Math.pow(tileY - eventY, 2));
+
+
+        while (tileHypotenuse < hypotenuse) {
             tileCoords.push([tileX, tileY]);
 
             const error2 = 2 * error;
@@ -230,6 +236,8 @@ though please credit me.
                 error += distanceX;
                 tileY += incrementY;
             }
+
+            tileHypotenuse = Math.sqrt(Math.pow(tileX - eventX, 2) + Math.pow(tileY - eventY, 2));
         }
 
         for (let i = 0; i < tileCoords.length; i++) {
